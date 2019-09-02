@@ -5,7 +5,7 @@ services:
     image: drchrono
     env_file:
       # Any environmental variables you want can go in this plain text file. See the docs.
-      - "docker/environment"
+      - "docker/environment.example"
     ports:
       - "8080:8080"
 #    command: /bin/bash -c "while true; do echo mark; sleep 2; done"
