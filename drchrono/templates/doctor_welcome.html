@@ -6,6 +6,12 @@
 </head>
 <body>
 <h1>Welcome {{ doctor.first_name }} {{ doctor.last_name }}</h1>
-{{ doctor }}
+<button type="button" class="btn btn-primary btn-lg btn-block" onclick="location.href='{% url 'dashboard' %}';">
+    Doctor's Dashboard
+</button>
+<button type="button" class="btn btn-secondary btn-lg btn-block" onclick="location.href='{% url 'kiosk' %}';">
+    Kiosk
+</button>
+
 </body>
 </html>

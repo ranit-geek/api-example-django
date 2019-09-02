@@ -1,7 +1,7 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect , render
 from django.views.generic import TemplateView
 from social_django.models import UserSocialAuth
-
+from django.views.generic import View
 from drchrono.endpoints import DoctorEndpoint
 
 
@@ -46,4 +46,24 @@ class DoctorWelcome(TemplateView):
         doctor_details = self.make_api_request()
         kwargs['doctor'] = doctor_details
         return kwargs
+
+
+class DoctorDashboard(View):
+    """
+
+    """
+    template_name = 'doctor_dashboard.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+
+class PatientCheckIn(View):
+    """
+
+    """
+    template_name = 'patient_check_in.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
 
