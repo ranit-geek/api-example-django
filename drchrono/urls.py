@@ -7,10 +7,12 @@ admin.autodiscover()
 
 
 urlpatterns = [
-    url(r'^setup/$', views.SetupView.as_view(), name='setup'),
+    url(r'^$', views.SetupView.as_view(), name='setup'),
     url(r'^welcome/$', views.DoctorWelcome.as_view(), name='setup'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'', include('social.apps.django_app.urls', namespace='social')),
     url(r'^dashboard/$', views.DoctorDashboard.as_view(), name='dashboard'),
-    url(r'^kiosk/$', views.PatientCheckIn.as_view(), name='kiosk'),
+    url(r'^patient_check_in/(\d+)/(\d+)$', views.PatientCheckIn.as_view(), name='patient_check_in'),
+    url(r'^appointments/$', views.DoctorAppointments.as_view(), name='appointments'),
+    url(r'^demographics/(\d+)/(\d+)$', views.PatientDemographics.as_view(), name='demographics'),
 ]

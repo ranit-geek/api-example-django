@@ -47,6 +47,7 @@ class BaseEndpoint(object):
         """
         self.access_token = access_token
 
+
     @property
     def logger(self):
         name = "{}.{}".format(__name__, self.endpoint)
@@ -216,3 +217,5 @@ class DoctorEndpoint(BaseEndpoint):
 
 class AppointmentProfileEndpoint(BaseEndpoint):
     endpoint = "appointment_profiles"
+
+
