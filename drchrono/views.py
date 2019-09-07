@@ -204,9 +204,6 @@ class StartAppointments(APIView):
                 AppointmentEndpoint(access_token=get_token()).update(request.POST['appointment_id'], {'status': 'In Session'})
                 tz_info = appointment.check_in_time.tzinfo
                 total_wait_time = datetime.datetime.now(tz_info) - appointment.check_in_time
-                print appointment.check_in_time
-                print datetime.datetime.now(tz_info)
-                print total_wait_time
                 Appointment.objects.filter(appointment_id=request.POST['appointment_id']).update(status='In Session',
                                                                                                  wait_time=total_wait_time
                                                                                                  )
