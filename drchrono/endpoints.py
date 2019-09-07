@@ -219,3 +219,11 @@ class AppointmentProfileEndpoint(BaseEndpoint):
     endpoint = "appointment_profiles"
 
 
+class CurrentUsersEndpoint(BaseEndpoint):
+    endpoint = "users/current"
+
+
+
+
+
+

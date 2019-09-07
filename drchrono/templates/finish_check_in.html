@@ -1,18 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Finish</title>
-</head>
-<body>
-<h1>Thank you for finishing check in {{ name }} !!!! Please wait for the doctors call.</h1>
-<button type="button" class="btn btn-primary btn-lg"  onclick="location.href='{% url 'appointments' %}';">
-    Go to Checkin
-</button>
-
-    </script>
+{% extends 'base.html' %}
+{% load staticfiles %}
 
 
 
-</body>
-</html>
+
+   {% block head %}
+    <link href="{% static 'css/finish_check_in.css' %}" rel="stylesheet">
+    <meta http-equiv="refresh" content="10; url={% url 'appointments' %}" />
+
+    {% endblock %}
+
+
+
+  {% block body%}
+<div class="container">
+    <div class="col-lg-4 col-md-4 col-sm-4 container justify-content-center">
+<div class="row">
+	    <br/>
+	   <div class="col text-center">
+
+
+
+        <br><br> <h2 class="message">Success</h2>
+        <img src="{{patient.patient_photo}}">
+        <h3 class="header">Dear, {{patient.first_name}} {{patient.last_name}}</h3>
+        <p class="text">You have successfully checked in. We have informed your doctor that you are here. Please wait for the doctor's call.
+        This page will be redirected back to home in 10 seconds.</p>
+
+    <br><br>
+
+
+
+</div>
+       </div>
+</div>
+</div>
+
+
+
+
+
+{% endblock %}
+
+
+
+
+

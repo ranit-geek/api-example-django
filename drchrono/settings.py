@@ -40,7 +40,14 @@ INSTALLED_APPS = (
     'drchrono',
     'social_django',
     'rest_framework',
+    'crispy_forms',
 )
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": []
+}
+
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -146,3 +153,5 @@ LOGGING = {
         },
     },
 }
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'

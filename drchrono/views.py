@@ -1,16 +1,18 @@
 import datetime
 
-from django.contrib.auth.decorators import login_required
-import requests
-from django.shortcuts import redirect , render
-from django.utils.decorators import method_decorator
+from django.core.checks import messages
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth import logout as authentication_logout
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
 from rest_framework.exceptions import APIException
+from rest_framework.views import APIView
 from social_django.models import UserSocialAuth
 from django.views.generic import View
-from drchrono.endpoints import DoctorEndpoint, BaseEndpoint, AppointmentEndpoint, PatientEndpoint
+from drchrono.endpoints import DoctorEndpoint, AppointmentEndpoint, PatientEndpoint, CurrentUsersEndpoint
 from drchrono.forms import PatientCheckInForm, DemographicsForm
-from drchrono.models import Appointment, Doctor
+from drchrono.models import Doctor, Appointment, Patient
 
 
 def get_token():
@@ -30,7 +32,6 @@ class SetupView(TemplateView):
     template_name = 'kiosk_setup.html'
 
 
-@method_decorator(login_required, name='dispatch')
 class DoctorWelcome(TemplateView):
     """
     The doctor can see what appointments they have today.
@@ -54,14 +55,17 @@ class DoctorWelcome(TemplateView):
         # Hit the API using one of the endpoints just to prove that we can
         # If this works, then your oAuth setup is working correctly.
         doctor_details = self.make_api_request()
+        doctor_id = CurrentUsersEndpoint(access_token=get_token()).fetch("")["doctor"]
+        Doctor.objects.get_or_create(id=doctor_id)
         kwargs['doctor'] = doctor_details
         return kwargs
 
-@method_decorator(login_required, name='dispatch')
+
 class DoctorAppointments(View):
     """
 
     """
+
     def get(self, request):
         appointments = AppointmentEndpoint(access_token=get_token()).list(date=str(datetime.date.today()))
         filtered_appointments = [
@@ -76,7 +80,6 @@ class DoctorAppointments(View):
         return render(request, "appointments.html", {"appointments": filtered_appointments})
 
 
-@method_decorator(login_required, name='dispatch')
 class DoctorDashboard(View):
     """
 
@@ -84,10 +87,13 @@ class DoctorDashboard(View):
     template_name = 'doctor_dashboard.html'
 
     def get(self, request):
-        return render(request, self.template_name)
+        try:
+            checked_in_appointments = Appointment.objects.all()
+        except ObjectDoesNotExist:
+            checked_in_appointments = None
+        return render(request, self.template_name, {'checked_in_appointments': checked_in_appointments})
 
 
-@method_decorator(login_required, name='dispatch')
 class PatientCheckIn(View):
     """
 
@@ -119,7 +125,6 @@ class PatientCheckIn(View):
         return render(request, self.template_name, {"form": form})
 
 
-@method_decorator(login_required, name='dispatch')
 class PatientDemographics(View):
     """
 
@@ -130,7 +135,8 @@ class PatientDemographics(View):
     def get(self, request, appointment_id, patient_id):
         demographics_details = PatientEndpoint(access_token=get_token()).fetch(patient_id)
         form = self.patient_demographics(initial=demographics_details)
-        return render(request, self.template_name, {"form": form})
+        return render(request, self.template_name, {"form": form,
+                                                    "patient_details": demographics_details})
 
     def post(self, request, appointment_id, patient_id):
         form = self.patient_demographics(request.POST)
@@ -139,9 +145,22 @@ class PatientDemographics(View):
             try:
                 PatientEndpoint(access_token=get_token()).update(patient_id, form.cleaned_data)
                 updated_patient_dmg = PatientEndpoint(access_token=get_token()).fetch(patient_id)
+                patient_object, created = Patient.objects.update_or_create(
+                    patient_id=updated_patient_dmg['id'],
+                    defaults={
+                        'gender': updated_patient_dmg['gender'],
+                        'doctor_id': updated_patient_dmg['doctor'],
+                        'first_name': updated_patient_dmg['first_name'],
+                        'last_name':updated_patient_dmg['last_name'],
+                        'email':updated_patient_dmg['email'],
+                        'patient_photo': updated_patient_dmg['patient_photo']
+                    }
+                )
+
                 appointment_details = AppointmentEndpoint(access_token=get_token()).fetch(appointment_id)
 
-                #only updating the required fields for making the change status PUT api call
+                # only updating the required fields for making the change status PUT api call
+
                 updated_appointment = {
                     'doctor': appointment_details['doctor'],
                     'duration': appointment_details['duration'],
@@ -152,9 +171,16 @@ class PatientDemographics(View):
                     'status': 'Arrived'
                 }
                 AppointmentEndpoint(access_token=get_token()).update(appointment_id,updated_appointment)
-                appointment = Appointment.objects.create(appointment_id=appointment_id)
-                appointment.save()
-                return render(request, 'finish_check_in.html', {"name": updated_patient_dmg["first_name"]})
+
+                appointment_object, created = Appointment.objects.update_or_create(
+                    appointment_id=appointment_details['id'],
+                    defaults={
+                        'status': 'Arrived',
+                        'patient': Patient.objects.get(patient_id=appointment_details['patient'])
+                    }
+                )
+
+                return render(request, 'finish_check_in.html', {"patient": updated_patient_dmg})
             except APIException:
                 form.add_error(None, 'Error in updating form. Please try again.')
 
@@ -167,3 +193,49 @@ class PatientDemographics(View):
                 'patient_id': patient_id,
             })
 
+
+class StartAppointments(APIView):
+
+    def post(self, request):
+        appointment = Appointment.objects.get(appointment_id=request.POST['appointment_id'])
+
+        if appointment.status == 'Arrived':
+            try:
+                AppointmentEndpoint(access_token=get_token()).update(request.POST['appointment_id'], {'status': 'In Session'})
+                tz_info = appointment.check_in_time.tzinfo
+                total_wait_time = datetime.datetime.now(tz_info) - appointment.check_in_time
+                print appointment.check_in_time
+                print datetime.datetime.now(tz_info)
+                print total_wait_time
+                Appointment.objects.filter(appointment_id=request.POST['appointment_id']).update(status='In Session',
+                                                                                                 wait_time=total_wait_time
+                                                                                                 )
+
+                return JsonResponse({"msg": "success"})
+
+            except APIException:
+                return JsonResponse({"msg": "fail"})
+        return JsonResponse({"msg": "fail"})
+
+
+class CompleteAppointments(APIView):
+
+    def post(self, request):
+        appointment = Appointment.objects.get(appointment_id=request.POST['appointment_id'])
+
+        if appointment.status == 'In Session':
+            try:
+                AppointmentEndpoint(access_token=get_token()).update(request.POST['appointment_id'], {'status': 'Complete'})
+                Appointment.objects.filter(appointment_id=request.POST['appointment_id']).update(status='Complete')
+                return JsonResponse({"msg": "success"})
+
+            except APIException:
+                return JsonResponse({"msg": "fail"})
+
+
+class Logout(View):
+    """Logs out user"""
+
+    def get(self, request):
+        authentication_logout(request)
+        return redirect('setup')

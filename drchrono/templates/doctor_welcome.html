@@ -1,19 +1,127 @@
+
+
+
+
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Welcome to drchrono</title>
-</head>
-<body>
-<h1>Welcome {{ doctor.first_name }} {{ doctor.last_name }}</h1>
-<button type="button" class="btn btn-primary btn-lg btn-block" onclick="location.href='{% url 'dashboard' %}';">
-    Doctor's Dashboard
-</button>
-<button type="button" class="btn btn-secondary btn-lg btn-block" onclick="location.href='{% url 'appointments' %}';">
-    Kiosk
-</button>
+{% extends "base.html" %}
+{% load staticfiles %}
 
-{{doctor}}
 
-</body>
-</html>
+    {% block head %}
+    <link href="{% static 'css/doctor_welcome.css' %}" rel="stylesheet">
+    <link href="{% static 'css/login.css' %}" rel="stylesheet">
+
+    <!-- Google fonts - Poppins -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
+    <!-- theme stylesheet-->
+    <link rel="stylesheet" href="{% static 'css/style.default.css' %}" id="theme-stylesheet">
+    {% endblock %}
+
+  {% block body%}
+
+    <div class="page">
+      <!-- Main Navbar-->
+      <header class="header">
+        <nav class="navbar">
+
+          <div class="container-fluid">
+            <div class="navbar-holder d-flex align-items-center justify-content-between">
+              <!-- Navbar Header-->
+              <div class="navbar-header">
+                <!-- Navbar Brand --><a href="index.html" class="navbar-brand d-none d-sm-inline-block">
+                  <div class="brand-text d-none d-lg-inline-block"><span>Dr. </span><strong>Chrono</strong></div>
+                  <div class="brand-text d-none d-sm-inline-block d-lg-none"><strong>BD</strong></div></a>
+               </div>
+              <!-- Navbar Menu -->
+              <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+
+                <!-- Logout    -->
+                <li class="nav-item"><a href="{% url 'logout' %}" class="nav-link logout"> <span class="d-none d-sm-inline">Logout</span><i class="fa fa-sign-out"></i></a></li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </header>
+      <div class="page-content d-flex align-items-stretch">
+        <!-- Side Navbar -->
+        <nav class="side-navbar">
+          <!-- Sidebar Header-->
+          <div class="sidebar-header d-flex align-items-center">
+            <div class="avatar"><img src="{{doctor.profile_picture}}" alt="..." class="img-fluid rounded-circle"></div>
+            <div class="title">
+              <h1 class="h4">{{doctor.first_name}} {{doctor.last_name}}</h1>
+              <p>Doctor</p>
+            </div>
+          </div>
+          <!-- Sidebar Navidation Menus--><span class="heading">Welcome</span>
+
+
+            </nav>
+        <div class="content-inner">
+
+          <!-- Projects Section-->
+          <section class="projects no-padding-top">
+            <div class="container-fluid">
+              <!-- Project-->
+              <div class="custom_button">
+	<div class="row">
+
+
+
+
+    <ul class="ds-btn">
+     <li>
+          <a href="{% url 'dashboard' %}">
+      <input type="submit" class="fadeIn fourth" value="Doctor's Dashboard" >
+    </a>
+
+
+        </li>
+        <li>
+
+          <!--<a href="{% url 'appointments'  %}">-->
+      <input type="submit" class="fadeIn fourth" value="Kiosk"  data-toggle="modal" data-target="#exampleModalCenter">
+    <!--</a>-->
+
+        </li>
+    </ul>
+
+
+
+	</div>
+
+</div>
+
+                <!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Kiosk Mode</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Please note that to exit from the KIOSK mode you have to use staff unlock !
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-info" onclick="location.href='{% url 'appointments' %}';">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <!-- JavaScript files-->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/popper.js/umd/popper.min.js' %}"> </script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'vendor/jquery.cookie/jquery.cookie.js' %}"> </script>
+    <script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
+    <script src="{% static 'vendor/jquery-validation/jquery.validate.min.js' %}"></script>
+
+
+
+ {% endblock%}

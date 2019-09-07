@@ -94,3 +94,5 @@ ENV/
 
 # secret environment stuff
 docker/environment
+
+.idea

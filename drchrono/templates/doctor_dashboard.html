@@ -1,11 +1,87 @@
 <!DOCTYPE html>
+{% load staticfiles %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Doctor dashboard</title>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
 <h1>Doctors dashboard</h1>
+<button type="button" class="btn btn-secondary btn-lg btn-block" onclick="location.href='{% url 'logout' %}';">
+    LOGOUT
+</button>
+
+   <div id='csrf_token_div' style="display: none">
+    {{ csrf_token }}
+    </div>
+
+
+
+          <!-- Area Chart Example-->
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="far fa-address-card"></i>
+              Today's Appointments</div>
+	            <div class="card-body" style="overflow-y: scroll; height:380px;" >
+                  <div>
+  	            {% if checked_in_appointments %}
+  	            	{% for appointment in checked_in_appointments %}
+  		              <div class="breadcrumb">
+  		                <div class='row' style="width: 100%;">
+  		                	<div class="col-md-5">
+  		                		<p><b>Patient Name:</b> {{ appointment.patient.first_name }} {{ appointment.patient.last_name }} </p>
+  		                	</div>
+
+  		                	{% if appointment.status == 'Arrived' %}
+
+  		                		<div class="col-md-3">
+  									<div class='time_diff' id='min_since_arrival' style="display: none">{{ appointment.arrival_time|timesince }}</div>
+  									<div id='status_{{ appointment.appointment_id }}' class="alert alert-success" style="margin-top: 20px;text-align: center;font-size: 15px;padding: 8px;">
+  									  	<strong>Patient Waiting!</strong>
+  									  	<div id="timer_{{ appointment.appointment_id }}" class="">00:00:00</div>
+  									</div>
+  		                		</div>
+
+
+  			                	<div class="col-md-4 ">
+  			                		<button id="btn_{{ appointment.appointment_id }}" type="button" class="btn btn-warning" style="float: right;margin-top: 25px; width: 200px;" onclick="call_patient('{{ appointment.appointment_id }}', '{{ csrf_token }}')"><strong>Call Patient</strong></button>
+  			                	</div>
+  		                	{% elif appointment.status == 'In Session' %}
+  		                		<div class="col-md-3"></div>
+  		                		<div class="col-md-4">
+  		                			<button class="btn btn-primary" id='status_{{ appointment.appointment_id }}' style="float: right;margin-top: 25px; width: 200px;"><strong>In Session!</strong></button>
+
+  		                				<button id="btn_{{ appointment.appointment_id }}" type="button" class="btn btn-info" onclick="appointment_completed('{{ appointment.appointment_id }}', '{{ csrf_token }}')">Done</button>
+
+  		                		</div>
+  		                	{% elif appointment.status == 'Complete' %}
+  		                		<div class="col-md-3"></div>
+  		                		<div class="col-md-4">
+  		                			<button class="btn btn-success" style="float: right;margin-top: 25px; width: 200px;"><strong>Complete</strong></button>
+  		                		</div>
+  		                	{% else %}
+  		                	<div class="col-md-3"></div>
+  		                		<div class="col-md-4">
+  		                			<button class="btn btn-default" style="float: right;margin-top: 25px; width: 200px;" disabled><strong>Status Unknown!</strong></button>
+  		                		</div>
+  		                	{% endif %}
+  		                </div>
+  		              </div>
+  		            {% endfor %}
+  	            {% else %}
+  	              	<div class="breadcrumb">
+  		                No Appointments scheduled today!
+  		            </div>
+  	              {% endif %}
+                </div>
+	            </div>
+            <div class="card-footer small text-muted">Updated {{ current_time }}</div>
+          </div>
+
+<script src="{% static 'js/doctor_dashboard.js' %}"></script>
+
+
 
 </body>
 </html>

@@ -1,21 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Patient Check In</title>
-</head>
-<body>
-<h1>Check In</h1>
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% load crispy_forms_tags %}
+  {% block body%}
+
+
+
+
+  <div class="col-xs-12 col-sm-4 col-md-4">
+		<a class="navbar-brand" href="#">
+			<img class="img-responsive" type="image/x-icon" rel="shortcut icon" src="{% static 'logo.svg' %}" alt="Sensaq" style="height:auto;margin-top:5px"/>
+		</a>
+    </div>
+
+	<div class="row">
+	    <br/>
+	   <div class="col text-center">
+		<h2>Please enter your details</h2>
+		</div>
+
+
+
+	</div>
+
+<div class="container">
+
 <form method="post">
      {% csrf_token %}
     <fieldset class="form-group">
-        {{form}}
+        {{form|crispy}}
     </fieldset>
        <div class="form-group">
-               <button type="submit" class="btn btn-outline-info" >SUBMIT</button>
+               <button type="submit" class="btn btn-outline-info" >Next</button>
 
            </div>
 </form>
-{{patient}}
-</body>
-</html>
+    </div>
+
+{% endblock %}
+
