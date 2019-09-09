@@ -1,37 +1,23 @@
-function add() {
-    seconds++;
-    if (seconds >= 60) {
-        seconds = 0;
-        minutes++;
-        if (minutes >= 60) {
-            minutes = 0;
-            hours++;
-        }
-    }
+  $(document).ready(function() {
 
-    h1.textContent = (hours ? (hours > 9 ? hours : "0" + hours) : "00") + ":" + (minutes ? (minutes > 9 ? minutes : "0" + minutes) : "00") + ":" + (seconds > 9 ? seconds : "0" + seconds);
+  var timezone = jstz.determine();
+  var tzname = timezone.name();
 
-    timer();
-}
-
-function timer() {
-    t = setTimeout(add, 1000);
-}
+  Cookies.set('tzname_from_user', tzname);
+  var csrf_token = $("#csrf_token_div").text().trim();
+  var doctor_id = $("#doctor_id_div").text().trim();
+  console.log(doctor_id)
+    refresh(csrf_token, doctor_id);
+  });
 
 
 function call_patient(appointment_id, csrf_token) {
   // show 'seeing patient', remove timer, show Done button to complete appointment
-  $('#timer_'+appointment_id).remove();
-  $('#status_'+appointment_id).removeClass('alert-success').addClass('alert-info');
-  $('#status_'+appointment_id).html('<strong>In Progress<strong/>');
-  $('#btn_'+appointment_id).html('Done');
-  $('#btn_'+appointment_id).removeClass('btn-success').addClass('btn-info');
-  $('#btn_'+appointment_id).attr("onclick","appointment_completed(" + appointment_id + ", '"+ csrf_token +"')");
 
-  var current_date_time = new Date($.now());
-  current_date_time = current_date_time.toUTCString()
-  console.log(current_date_time);
-  // add time_waited duration to appointment_obj and save in db
+
+  $('#btn_'+appointment_id).html('Finish');
+  $('#btn_'+appointment_id).removeClass('btn-danger').addClass('btn-success');
+  $('#btn_'+appointment_id).attr("onclick","appointment_completed(" + appointment_id + ", '"+ csrf_token +"')");
 
   $.post('/start_appointment/',
     {
@@ -58,7 +44,7 @@ function appointment_completed(appointment_id, csrf_token) {
 
   $('#status_'+appointment_id).removeClass('alert-info').addClass('alert-warning');
   $('#status_'+appointment_id).html('<strong>Completed<strong/>');
-  $('#btn_'+appointment_id).remove();
+  $('#btn_'+appointment_id).html('Completed').prop('disabled', true);;
 
   $.post('/complete_appointment/',
     {
@@ -73,3 +59,24 @@ function appointment_completed(appointment_id, csrf_token) {
   );
 
 }
+
+
+
+
+
+function refresh(csrf_token, doctor_id) {
+var url= doctor_id+'/update'
+setInterval(function(){
+
+  $.ajax({
+        url: url,
+        success: function(data) {
+            $('#auto-refresh-body').html(data);
+        }
+    });
+
+}, 5000);
+
+
+}
+

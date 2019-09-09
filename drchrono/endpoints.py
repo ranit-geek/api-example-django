@@ -64,6 +64,7 @@ class BaseEndpoint(object):
 
         Modifies kwargs in place. Returns None.
         """
+
         kwargs['headers'] = kwargs.get('headers', {})
         kwargs['headers'].update({
             'Authorization': 'Bearer {}'.format(self.access_token),

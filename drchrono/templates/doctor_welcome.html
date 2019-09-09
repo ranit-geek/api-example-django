@@ -71,7 +71,7 @@
 
     <ul class="ds-btn">
      <li>
-          <a href="{% url 'dashboard' %}">
+          <a href="{% url 'dashboard' doctor.id %}">
       <input type="submit" class="fadeIn fourth" value="Doctor's Dashboard" >
     </a>
 
@@ -121,6 +121,7 @@
     <script src="{% static 'vendor/jquery.cookie/jquery.cookie.js' %}"> </script>
     <script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
     <script src="{% static 'vendor/jquery-validation/jquery.validate.min.js' %}"></script>
+                <script src="{% static 'js/doctor_welcome.js' %}"></script>
 
 
 

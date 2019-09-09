@@ -1129,11 +1129,13 @@ section.dashboard-counts div[class*='col-']:last-of-type .item {
   color: #999;
 }
 
-.project .image {
-  max-width: 50px;
-  min-width: 50px;
+.avatar {
+  vertical-align: middle;
+  width: 50px;
   height: 50px;
-  margin-right: 15px;
+  border-radius: 50%;
+    margin-right: 15px;
+   position: relative;
 }
 
 .project .time,
@@ -2185,8 +2187,8 @@ STYLE SWITCHER FOR DEMO
 }
 
 .btn-primary:hover {
-  color: color-yiq(#285F8F);
-  background-color: #285F8F;
+  color: color-yiq(#5a48ea);
+  background-color: #5a48ea;
   border-color: #503ce9;
 }
 
@@ -3506,3 +3508,11 @@ a > code {
   font-size: 125%;
 }
 
+
+
+.avatar {
+  vertical-align: middle;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}

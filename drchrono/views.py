@@ -1,18 +1,22 @@
-import datetime
 
+from datetime import datetime
+import pytz
 from django.core.checks import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import logout as authentication_logout
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
+from django.core import serializers
 from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
 from social_django.models import UserSocialAuth
 from django.views.generic import View
+
+from drchrono import utilities
 from drchrono.endpoints import DoctorEndpoint, AppointmentEndpoint, PatientEndpoint, CurrentUsersEndpoint
 from drchrono.forms import PatientCheckInForm, DemographicsForm
-from drchrono.models import Doctor, Appointment, Patient
+from drchrono.models import Doctor, Appointment, Patient, AverageWaitTime
 
 
 def get_token():
@@ -56,7 +60,13 @@ class DoctorWelcome(TemplateView):
         # If this works, then your oAuth setup is working correctly.
         doctor_details = self.make_api_request()
         doctor_id = CurrentUsersEndpoint(access_token=get_token()).fetch("")["doctor"]
-        Doctor.objects.get_or_create(id=doctor_id)
+        doctor = DoctorEndpoint(access_token=get_token()).fetch(doctor_id)
+
+        Doctor.objects.get_or_create(id=doctor["id"],
+                                     first_name=doctor["first_name"],
+                                     last_name=doctor["last_name"],
+                                     doctor_photo=doctor["profile_picture"])
+
         kwargs['doctor'] = doctor_details
         return kwargs
 
@@ -67,16 +77,40 @@ class DoctorAppointments(View):
     """
 
     def get(self, request):
-        appointments = AppointmentEndpoint(access_token=get_token()).list(date=str(datetime.date.today()))
+        user_timezone = request.COOKIES.get('tzname_from_user')
+        appointments = AppointmentEndpoint(access_token=get_token()).list(date=str(datetime.now(pytz.timezone(user_timezone))))
         filtered_appointments = [
             {
                 'id': appointment['id'],
                 'patient': appointment['patient'],
-                'time': appointment['scheduled_time']
+                'time': datetime.strptime(appointment['scheduled_time'], "%Y-%m-%dT%H:%M:%S")
             }
             for appointment in appointments
             if appointment['status'] == ''
         ]
+        for appointment in filtered_appointments:
+            patient = PatientEndpoint(access_token=get_token()).fetch(appointment["patient"])
+            patient_object, created = Patient.objects.update_or_create(
+                patient_id=patient['id'],
+                defaults={
+                    'gender': patient['gender'],
+                    'doctor_id': patient['doctor'],
+                    'first_name': patient['first_name'],
+                    'last_name': patient['last_name'],
+                    'email': patient['email'],
+                    'patient_photo': patient['patient_photo']
+                }
+            )
+
+            appointment_object, created = Appointment.objects.update_or_create(
+                appointment_id=appointment['id'],
+                defaults={
+                    'status': '',
+                    'patient': Patient.objects.get(patient_id=appointment['patient']),
+                    'scheduled_time': appointment['time']
+
+                }
+            )
         return render(request, "appointments.html", {"appointments": filtered_appointments})
 
 
@@ -86,12 +120,33 @@ class DoctorDashboard(View):
     """
     template_name = 'doctor_dashboard.html'
 
-    def get(self, request):
+    def get(self, request, doctor_id):
         try:
             checked_in_appointments = Appointment.objects.all()
         except ObjectDoesNotExist:
             checked_in_appointments = None
-        return render(request, self.template_name, {'checked_in_appointments': checked_in_appointments})
+        doctor = Doctor.objects.get(id=doctor_id)
+        return render(request, self.template_name, {'checked_in_appointments': checked_in_appointments,
+                                                    'doctor': doctor})
+
+
+class DoctorDashboardUpdate(View):
+    """
+
+    """
+    template_name = 'dashboard_body.html'
+
+    def get(self, request, doctor_id):
+        try:
+            checked_in_appointments = Appointment.objects.all()
+        except ObjectDoesNotExist:
+            checked_in_appointments = None
+        doctor = Doctor.objects.get(id=doctor_id)
+        return render(request, self.template_name, {'checked_in_appointments': checked_in_appointments,
+                                                    'doctor': doctor,
+                                                    'status' : "success"
+                                                    })
+
 
 
 class PatientCheckIn(View):
@@ -172,11 +227,20 @@ class PatientDemographics(View):
                 }
                 AppointmentEndpoint(access_token=get_token()).update(appointment_id,updated_appointment)
 
+                user_timezone = request.COOKIES.get('tzname_from_user')
+                time_now =datetime.now(pytz.timezone('UTC'))
+                arrival_time = time_now.astimezone(pytz.timezone(user_timezone))
+
+
+
+
                 appointment_object, created = Appointment.objects.update_or_create(
                     appointment_id=appointment_details['id'],
                     defaults={
                         'status': 'Arrived',
-                        'patient': Patient.objects.get(patient_id=appointment_details['patient'])
+                        'patient': Patient.objects.get(patient_id=appointment_details['patient']),
+                        'check_in_time':arrival_time,
+                        'scheduled_time':appointment_details['scheduled_time']
                     }
                 )
 
@@ -203,9 +267,11 @@ class StartAppointments(APIView):
             try:
                 AppointmentEndpoint(access_token=get_token()).update(request.POST['appointment_id'], {'status': 'In Session'})
                 tz_info = appointment.check_in_time.tzinfo
-                total_wait_time = datetime.datetime.now(tz_info) - appointment.check_in_time
+                time_now = datetime.now(tz_info)
+                total_wait_time = time_now - appointment.check_in_time
                 Appointment.objects.filter(appointment_id=request.POST['appointment_id']).update(status='In Session',
-                                                                                                 wait_time=total_wait_time
+                                                                                                 wait_time=total_wait_time,
+                                                                                                 session_start_time=time_now
                                                                                                  )
 
                 return JsonResponse({"msg": "success"})
@@ -223,11 +289,38 @@ class CompleteAppointments(APIView):
         if appointment.status == 'In Session':
             try:
                 AppointmentEndpoint(access_token=get_token()).update(request.POST['appointment_id'], {'status': 'Complete'})
-                Appointment.objects.filter(appointment_id=request.POST['appointment_id']).update(status='Complete')
+                tz_info = appointment.check_in_time.tzinfo
+                Appointment.objects.filter(appointment_id=request.POST['appointment_id']).update(status='Complete',
+                                                                                                 session_end_time=datetime.now(tz_info))
                 return JsonResponse({"msg": "success"})
 
             except APIException:
                 return JsonResponse({"msg": "fail"})
+
+
+class CalculateWaitTime(View):
+
+    template_name = 'charts.html'
+
+    def get(self,request, doctor_id):
+        user_timezone = request.COOKIES.get('tzname_from_user')
+        utilities.calculate_average_wait_time(doctor_id,user_timezone)
+        wait_time_data = AverageWaitTime.objects.filter(doctor=doctor_id)
+        doctor = Doctor.objects.get(id=doctor_id)
+        res_dict = {
+            "date_list": [obj.date for obj in wait_time_data],
+            "avg_list": [obj.average_wait_time for obj in wait_time_data],
+            "doctor": doctor
+        }
+
+        if request.is_ajax():
+            return JsonResponse({
+                "date_list": res_dict["date_list"],
+                "avg_list": res_dict["avg_list"]
+
+            })
+        # data = serializers.serialize('json', res_dict)
+        return render(request,self.template_name,res_dict)
 
 
 class Logout(View):
