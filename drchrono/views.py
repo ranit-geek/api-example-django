@@ -171,8 +171,8 @@ class PatientDemographics(View):
                         'gender': updated_patient_dmg['gender'],
                         'doctor_id': updated_patient_dmg['doctor'],
                         'first_name': updated_patient_dmg['first_name'],
-                        'last_name':updated_patient_dmg['last_name'],
-                        'email':updated_patient_dmg['email'],
+                        'last_name': updated_patient_dmg['last_name'],
+                        'email': updated_patient_dmg['email'],
                         'patient_photo': updated_patient_dmg['patient_photo']
                     }
                 )
@@ -201,8 +201,8 @@ class PatientDemographics(View):
                     defaults={
                         'status': 'Arrived',
                         'patient': Patient.objects.get(patient_id=appointment_details['patient']),
-                        'check_in_time':arrival_time,
-                        'scheduled_time':appointment_details['scheduled_time']
+                        'check_in_time': arrival_time,
+                        'scheduled_time': appointment_details['scheduled_time']
                     }
                 )
 
