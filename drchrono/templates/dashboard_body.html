@@ -1,84 +1,69 @@
 
 {% load tz %}
-{% for appointment in checked_in_appointments %}
+{% if checked_in_appointments %}
+    {% for appointment in checked_in_appointments %}
 
-
-
-
-
-                     <!-- Project-->
-              <div class="project">
-                <div class="row bg-white has-shadow">
-                  <div class="left-col col-lg-6 d-flex align-items-center justify-content-between">
-                    <div class="project-title d-flex align-items-center">
-                      <!--<div class="image has-shadow"><img src="{{appointment.patient.patient_photo}}" alt="..." class="img-fluid"></div>-->
-                        <img src="{{appointment.patient.patient_photo}}" alt="Avatar" class="avatar">
-                      <div class="text">
+    <div class="project">
+        <div class="row bg-white has-shadow">
+            <div class="left-col col-lg-6 d-flex align-items-center justify-content-between">
+                <div class="project-title d-flex align-items-center">
+                    <img src="{{appointment.patient.patient_photo}}" alt="Avatar" class="avatar">
+                    <div class="text">
                         <h3 class="h4">{{ appointment.patient.first_name }} {{ appointment.patient.last_name }} </h3><small>Lorem Ipsum Dolor</small>
-                      </div>
+                    </div>
 
                           {% if appointment.status == 'Arrived' %}
-
-                    </div>
-                    <div class="project-date"><span class="hidden-sm-down">Checked in at</span></div>
-                  </div>
-                  <div class="right-col col-lg-6 d-flex align-items-center">
-                    <div class="time"><i class="fa fa-clock-o"></i>{{appointment.check_in_time | timezone:request.COOKIES.tzname_from_user }}</div>
-
-                    <div class="right-col col-lg-8 d-flex align-items-center">
-  			                		<button id="btn_{{ appointment.appointment_id }}" type="button" class="btn btn-danger" style="float: right;margin-top: 25px; margin-left: 20px; width: 200px;" onclick="call_patient('{{ appointment.appointment_id }}', '{{ csrf_token }}')"><strong>Call Patient</strong></button>
-  			                	</div>
+                </div>
+                <div class="project-date"><span class="hidden-sm-down">Checked in at</span></div>
+            </div>
+            <div class="right-col col-lg-6 d-flex align-items-center">
+                <div class="time"><i class="fa fa-clock-o"></i>{{appointment.check_in_time | timezone:request.COOKIES.tzname_from_user }}</div>
+                <div class="right-col col-lg-8 d-flex align-items-center">
+                    <button id="btn_{{ appointment.appointment_id }}" type="button" class="btn btn-danger" style="float: right;margin-top: 25px; margin-left: 20px; width: 200px;" onclick="call_patient('{{ appointment.appointment_id }}', '{{ csrf_token }}')"><strong>Call Patient</strong></button>
+                </div>
 
                         {% elif appointment.status == 'In Session' %}
 
-                       </div>
-                    <div class="project-date"><span class="hidden-sm-down">Session started at</span></div>
-                  </div>
-                  <div class="right-col col-lg-6 d-flex align-items-center">
-                    <div class="time"><i class="fa fa-clock-o"></i>{{appointment.session_start_time | timezone:request.COOKIES.tzname_from_user }}</div>
-
-                    <div class="right-col col-lg-8 d-flex align-items-center">
-                        <button id="btn_{{ appointment.appointment_id }}" type="button" class="btn btn-success" style="float: right;margin-top: 25px; margin-left: 20px; width: 200px;" onclick="appointment_completed('{{ appointment.appointment_id }}', '{{ csrf_token }}')">Finish</button>
-</div>
+            </div>
+            <div class="project-date"><span class="hidden-sm-down">Session started at</span></div>
+        </div>
+        <div class="right-col col-lg-6 d-flex align-items-center">
+            <div class="time"><i class="fa fa-clock-o"></i>{{appointment.session_start_time | timezone:request.COOKIES.tzname_from_user }}</div>
+            <div class="right-col col-lg-8 d-flex align-items-center">
+                <button id="btn_{{ appointment.appointment_id }}" type="button" class="btn btn-success" style="float: right;margin-top: 25px; margin-left: 20px; width: 200px;" onclick="appointment_completed('{{ appointment.appointment_id }}', '{{ csrf_token }}')">Finish</button>
+            </div>
                         {% elif appointment.status == 'Complete' %}
 
-      </div>
-                      <div class="project-date"><span class="hidden-sm-down">Session ended at</span></div>
-                  </div>
-                  <div class="right-col col-lg-6 d-flex align-items-center">
-                    <div class="time"><i class="fa fa-clock-o"></i>{{ appointment.session_end_time| timezone:request.COOKIES.tzname_from_user }}</div>
-
-
-                    <div class="right-col col-lg-8 d-flex align-items-center">
-        <p class="text-success" style="float: right;margin-top: 25px; margin-left: 20px; width: 200px;">Completed</p>
-
+        </div>
+        <div class="project-date"><span class="hidden-sm-down">Session ended at</span></div>
+    </div>
+        <div class="right-col col-lg-6 d-flex align-items-center">
+            <div class="time"><i class="fa fa-clock-o"></i>{{ appointment.session_end_time| timezone:request.COOKIES.tzname_from_user }}</div>
+            <div class="right-col col-lg-8 d-flex align-items-center">
+                <p class="text-success" style="float: right;margin-top: 25px; margin-left: 20px; width: 200px;">Completed</p>
 
                         {% else %}
 
       </div>
-                      <div class="project-date"><span class="hidden-sm-down">Appointment scheduled at</span></div>
-                  </div>
-                  <div class="right-col col-lg-6 d-flex align-items-center">
-                    <div class="time"><i class="fa fa-clock-o"></i>{{appointment.scheduled_time | timezone:request.COOKIES.tzname_from_user }}</div>
-
-                    <div class="right-col col-lg-8 d-flex align-items-center">
-        <p class="text-info" style="float: right;margin-top: 25px; margin-left: 20px; width: 200px;">No Update</p>
-
-
-
-
+    <div class="project-date"><span class="hidden-sm-down">Appointment scheduled at</span></div>
+        </div>
+        <div class="right-col col-lg-6 d-flex align-items-center">
+            <div class="time"><i class="fa fa-clock-o"></i>{{appointment.scheduled_time | timezone:request.COOKIES.tzname_from_user }}</div>
+            <div class="right-col col-lg-8 d-flex align-items-center">
+                <p class="text-info" style="float: right;margin-top: 25px; margin-left: 20px; width: 200px;">No Update</p>
 
                 {% endif %}
-
-                          </div>
-                </div>
-                </div>
-
-
-
-
-
-
+    </div>
+</div>
+</div>
 
                 {% endfor %}
+{% else %}
+
+<div class="container">
+    <p class="text-center">No appointments for today</p>
+</div>
+{% endif %}
+
+
 

@@ -8,29 +8,19 @@
     <link href="{% static 'css/login.css' %}" rel="stylesheet">
     {% endblock %}
 
-
-
     {% block body%}
 
 
   <div class="wrapper fadeInDown">
-  <div id="formContent">
-
-
-    <div class="fadeIn first">
-      <img  src="{% static 'logo.svg' %}" id="icon" alt="User Icon" />
-    </div>
-
-       <a href="{% url 'social:begin' 'drchrono' %}">
-      <input type="submit" class="fadeIn fourth" value="Log In" >
-    </a>
-
-
-
+      <div id="formContent">
+          <div class="fadeIn first">
+              <img  src="{% static 'logo.svg' %}" id="icon" alt="User Icon" />
+          </div>
+          <a href="{% url 'social:begin' 'drchrono' %}">
+              <input type="submit" class="fadeIn fourth" value="Log In" >
+          </a>
+      </div>
   </div>
-</div>
-
-
 
     {% endblock %}
 

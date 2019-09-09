@@ -53,77 +53,56 @@
               <p>Doctor</p>
             </div>
           </div>
-          <!-- Sidebar Navidation Menus--><span class="heading">Welcome</span>
+          <span class="heading">Welcome</span>
+        </nav>
+          <div class="content-inner">
 
+              <section class="projects no-padding-top">
+                  <div class="container-fluid">
 
-            </nav>
-        <div class="content-inner">
-
-          <!-- Projects Section-->
-          <section class="projects no-padding-top">
-            <div class="container-fluid">
-              <!-- Project-->
-              <div class="custom_button">
-	<div class="row">
-
-
-
-
-    <ul class="ds-btn">
-     <li>
-          <a href="{% url 'dashboard' doctor.id %}">
-      <input type="submit" class="fadeIn fourth" value="Doctor's Dashboard" >
-    </a>
-
-
-        </li>
-        <li>
-
-          <!--<a href="{% url 'appointments'  %}">-->
-      <input type="submit" class="fadeIn fourth" value="Kiosk"  data-toggle="modal" data-target="#exampleModalCenter">
-    <!--</a>-->
-
-        </li>
-    </ul>
-
-
-
-	</div>
-
-</div>
-
-                <!-- Modal -->
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Kiosk Mode</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        Please note that to exit from the KIOSK mode you have to use staff unlock !
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-info" onclick="location.href='{% url 'appointments' %}';">Confirm</button>
+                      <div class="custom_button">
+                          <div class="row">
+                              <ul class="ds-btn">
+                                  <li>
+                                      <a href="{% url 'dashboard' doctor.id %}">
+                                          <input type="submit" class="fadeIn fourth" value="Doctor's Dashboard" >
+                                      </a>
+                                  </li>
+                                  <li>
+                                      <!--<a href="{% url 'appointments'  %}">-->
+                                      <input type="submit" class="fadeIn fourth" value="Kiosk"  data-toggle="modal" data-target="#exampleModalCenter">
+                                      <!--</a>-->
+                                  </li>
+                              </ul>
+                          </div>
+                      </div>
+                      <!-- Modal -->
+                      <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered" role="document">
+                              <div class="modal-content">
+                                  <div class="modal-header">
+                                      <h5 class="modal-title" id="exampleModalLongTitle">Kiosk Mode</h5>
+                                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                          <span aria-hidden="true">&times;</span>
+                                      </button>
+                                  </div>
+                                  <div class="modal-body">
+                                      Please note that to exit from the KIOSK mode you have to use staff unlock !
+                                  </div>
+                                  <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                      <button type="button" class="btn btn-info" onclick="location.href='{% url 'appointments' %}';">Confirm</button>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </section>
+          </div>
       </div>
     </div>
-  </div>
-</div>
 
 
-    <!-- JavaScript files-->
-    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
-    <script src="{% static 'vendor/popper.js/umd/popper.min.js' %}"> </script>
-    <script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'vendor/jquery.cookie/jquery.cookie.js' %}"> </script>
-    <script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
-    <script src="{% static 'vendor/jquery-validation/jquery.validate.min.js' %}"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.6/jstz.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.js"></script>
- <script src="{% static 'js/welcome.js' %}"></script>
 
 
- {% endblock%}
+ {% endblock %}

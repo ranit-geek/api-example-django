@@ -19,132 +19,92 @@
       <!-- Main Navbar-->
       <header class="header">
         <nav class="navbar">
-
-          <div class="container-fluid">
-            <div class="navbar-holder d-flex align-items-center justify-content-between">
-              <!-- Navbar Header-->
-              <div class="navbar-header">
-                <!-- Navbar Brand --><a href="#" class="navbar-brand d-none d-sm-inline-block">
-                  <div class="brand-text d-none d-lg-inline-block"><span>Dr </span><strong>Chrono</strong></div>
-               </a>
-              </div>
-              <!-- Navbar Menu -->
-              <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
-
-                <!-- Logout    -->
-                <li data-toggle="modal" class="nav-item"><a data-toggle="modal" data-target="#exampleModalCenter" href="#" class="nav-link logout"> <span class="d-none d-sm-inline">KIOSK</span><i class="fa fa-sign-out"></i></a></li>
-                <li  class="nav-item"><a href="{% url 'logout' %}" class="nav-link logout"> <span class="d-none d-sm-inline">Logout</span><i class="fa fa-sign-out"></i></a></li>
-
-
-
-
-              </ul>
+            <div class="container-fluid">
+                <div class="navbar-holder d-flex align-items-center justify-content-between">
+                    <!-- Navbar Header-->
+                    <div class="navbar-header">
+                        <!-- Navbar Brand --><a href="#" class="navbar-brand d-none d-sm-inline-block">
+                        <div class="brand-text d-none d-lg-inline-block"><span>Dr </span><strong>Chrono</strong></div>
+                    </a>
+                    </div>
+                    <!-- Navbar Menu -->
+                    <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+                        <!-- Logout    -->
+                        <li data-toggle="modal" class="nav-item"><a data-toggle="modal" data-target="#exampleModalCenter" href="#" class="nav-link logout"> <span class="d-none d-sm-inline">KIOSK</span><i class="fa fa-sign-out"></i></a></li>
+                        <li  class="nav-item"><a href="{% url 'logout' %}" class="nav-link logout"> <span class="d-none d-sm-inline">Logout</span><i class="fa fa-sign-out"></i></a></li>
+                    </ul>
+                </div>
             </div>
-          </div>
         </nav>
       </header>
-
-
-                <!-- Modal -->
-                <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLongTitle">Kiosk Mode</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
+                            <span aria-hidden="true">&times;</span>
                         </button>
-                      </div>
-                      <div class="modal-body">
+                    </div>
+                    <div class="modal-body">
                         Please note that to exit from the KIOSK mode you have to use staff unlock !
-                      </div>
-                      <div class="modal-footer">
+                    </div>
+                    <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-info" onclick="location.href='{% url 'appointments' %}';">Confirm</button>
-                      </div>
                     </div>
-                  </div>
                 </div>
-      <div class="page-content d-flex align-items-stretch">
-        <!-- Side Navbar -->
-        <nav class="side-navbar">
-          <!-- Sidebar Header-->
-          <div class="sidebar-header d-flex align-items-center">
-            <div class="avatar"><img src="{{doctor.doctor_photo}}" alt="..." class="img-fluid rounded-circle"></div>
-            <div class="title">
-              <h1 class="h4">{{doctor.first_name}} {{doctor.last_name}}</h1>
-                    <p>Doctor</p>
-
             </div>
-          </div>
-          <!-- Sidebar Navidation Menus--><span class="heading">Main</span>
-          <ul class="list-unstyled">
-            <li class="active"><a href="#"> <i class="icon-home"></i>Today's Appointments </a></li>
-               <li><a href="{% url 'calculate_wait' doctor.id %}"> <i class="fa fa-bar-chart"></i>Charts</a></li>
-
-
-            </nav>
-        <div class="content-inner">
-          <!-- Page Header-->
-          <header class="page-header">
-            <div class="container-fluid">
-              <h2 class="no-margin-bottom">Dashboard</h2>
-            </div>
-          </header>
-          <!-- Dashboard Counts Section-->
-
-          <!-- Dashboard Header Section    -->
-          <section class="dashboard-header">
-            <div class="container-fluid">
-              <div class="row">
-
-                    <div id='csrf_token_div' style="display: none">
-                        {{ csrf_token }}
-                    </div>
-
-                   <div id='doctor_id_div' style="display: none">
-                       {{ doctor.id }}
-                    </div>
-
-          <!-- Projects Section-->
-          <section class="projects no-padding-top">
-            <div class="container-fluid">
-
-                <div id ="auto-refresh-body">
-
-                     {% include 'dashboard_body.html' %}
-                </div>
-
-            </div>
-          </section>
-
-
-
         </div>
-      </div>
+        <div class="page-content d-flex align-items-stretch">
+            <!-- Side Navbar -->
+            <nav class="side-navbar">
+                <!-- Sidebar Header-->
+                <div class="sidebar-header d-flex align-items-center">
+                    <div class="avatar"><img src="{{doctor.doctor_photo}}" alt="..." class="img-fluid rounded-circle"></div>
+                    <div class="title">
+                        <h1 class="h4">{{doctor.first_name}} {{doctor.last_name}}</h1>
+                        <p>Doctor</p>
+                    </div>
+                </div>
 
+                <ul class="list-unstyled">
+                    <li class="active"><a href="#"> <i class="icon-home"></i>Today's Appointments </a></li>
+                    <li><a href="{% url 'calculate_wait' doctor.id %}"> <i class="fa fa-bar-chart"></i>Charts</a></li>
+                </ul>
+            </nav>
+            <div class="content-inner">
+                <!-- Page Header-->
+                <header class="page-header">
+                    <div class="container-fluid">
+                        <h2 class="no-margin-bottom">Dashboard</h2>
+                    </div>
+                </header>
 
+                <section class="dashboard-header">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div id='csrf_token_div' style="display: none">
+                                {{ csrf_token }}
+                            </div>
+                            <div id='doctor_id_div' style="display: none">
+                                {{ doctor.id }}
+                            </div>
 
-
-
-
-
-
-
-
-
-
-    <!-- JavaScript files-->
-    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
-    <script src="{% static 'vendor/popper.js/umd/popper.min.js' %}"> </script>
-    <script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'vendor/jquery.cookie/jquery.cookie.js' %}"> </script>
-    <script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
-    <script src="{% static 'vendor/jquery-validation/jquery.validate.min.js' %}"></script>
-              <script src="{% static 'js/doctor_dashboard.js' %}"></script>
-              <script src="{% static 'js/charts.js' %}"></script>
-                 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.6/jstz.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.js"></script>
+                            <section class="projects no-padding-top">
+                                <div class="container-fluid">
+                                    <div id ="auto-refresh-body">
+                                        {% include 'dashboard_body.html' %}
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
 
 
 

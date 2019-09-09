@@ -273,7 +273,7 @@ class CalculateWaitTime(View):
 
     def get(self,request, doctor_id):
         user_timezone = request.COOKIES.get('tzname_from_user')
-        utilities.calculate_average_wait_time(doctor_id,user_timezone)
+        utilities.calculate_average_wait_time(doctor_id, user_timezone)
         wait_time_data = AverageWaitTime.objects.filter(doctor=doctor_id)
         doctor = Doctor.objects.get(id=doctor_id)
         res_dict = {
@@ -288,8 +288,7 @@ class CalculateWaitTime(View):
                 "avg_list": res_dict["avg_list"]
 
             })
-        # data = serializers.serialize('json', res_dict)
-        return render(request,self.template_name,res_dict)
+        return render(request, self.template_name, res_dict)
 
 
 class Logout(View):

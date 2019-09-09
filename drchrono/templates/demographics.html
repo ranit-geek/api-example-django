@@ -9,50 +9,35 @@
     <link href="{% static 'css/demographics.css' %}" rel="stylesheet">
 
     {% endblock %}
-  {% block body%}
-
-
-
-
-  <div class="col-xs-12 col-sm-4 col-md-4">
-		<a class="navbar-brand" href="#">
-			<img class="img-responsive" type="image/x-icon" rel="shortcut icon" src="{% static 'logo.svg' %}" alt="Sensaq" style="height:auto;margin-top:5px"/>
+    {% block body%}
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <a class="navbar-brand" href="#">
+            <img class="img-responsive" type="image/x-icon" rel="shortcut icon" src="{% static 'logo.svg' %}" alt="Sensaq" style="height:auto;margin-top:5px"/>
 		</a>
     </div>
-
-	<div class="row">
-	    <br/>
-	   <div class="col text-center">
+    <div class="row">
+        <br/>
+        <div class="col text-center">
             <div class="avatar"><img src="{{patient_details.patient_photo}}" alt="..." class="img-fluid rounded-circle"></div>
-           <div class="container">
-<div class="alert alert-success" role="alert">
-  <h4 class="alert-heading">Hi {{patient_details.first_name}} {{patient_details.last_name}}!</h4>
-  <p>Welcome! Please review your details and finish the check in process.</p>
-</div>
-</div>
-		</div>
-
-
-
-	</div>
-
-
-
-<div class="container">
-<form method="post">
-     {% csrf_token %}
-    <fieldset class="form-group">
-        {{form|crispy}}
-    </fieldset>
-       <div class="form-group">
-               <button type="submit" class="btn btn-outline-info" >Finish</button>
-
+            <div class="container">
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Hi {{patient_details.first_name}} {{patient_details.last_name}}!</h4>
+                    <p>Welcome! Please review your details and finish the check in process.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+    <form method="post">
+         {% csrf_token %}
+        <fieldset class="form-group">
+            {{form|crispy}}
+        </fieldset>
+           <div class="form-group">
+                   <button type="submit" class="btn btn-outline-info" >Finish</button>
            </div>
-</form>
-</div>
-
-
-
+    </form>
+    </div>
 
 {% endblock %}
 
