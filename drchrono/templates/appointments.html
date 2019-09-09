@@ -63,6 +63,7 @@
 <section class="services py-5 bg-light1 text-center">
     <div class="container">
        <div class="row">
+           {% if appointments%}
              {% for appointment in appointments %}
            <div class="col-xs-12 col-sm-6 col-md-3">
                <a href="{% url 'patient_check_in' appointment.id appointment.patient %}" class="text-body">
@@ -81,6 +82,11 @@
     		   </a>
     		</div>
               {% endfor %}
+           {% else %}
+           <div class="container">
+             <p class="text-center">No appointments for today</p>
+           </div>
+           {% endif %}
        </div>
     </div>
 </section>
