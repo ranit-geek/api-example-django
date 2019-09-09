@@ -179,8 +179,6 @@ class PatientDemographics(View):
 
                 appointment_details = AppointmentEndpoint(access_token=get_token()).fetch(appointment_id)
 
-                # only updating the required fields for making the change status PUT api call
-
                 updated_appointment = {
                     'doctor': appointment_details['doctor'],
                     'duration': appointment_details['duration'],
