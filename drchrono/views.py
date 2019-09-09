@@ -54,10 +54,7 @@ class DoctorWelcome(TemplateView):
         # account probably only has one doctor in it.
         return next(api.list())
 
-    def get_context_data(self, **kwargs):
-        kwargs = super(DoctorWelcome, self).get_context_data(**kwargs)
-        # Hit the API using one of the endpoints just to prove that we can
-        # If this works, then your oAuth setup is working correctly.
+    def get(self, request, **kwargs):
         doctor_details = self.make_api_request()
         doctor_id = CurrentUsersEndpoint(access_token=get_token()).fetch("")["doctor"]
         doctor = DoctorEndpoint(access_token=get_token()).fetch(doctor_id)
@@ -67,18 +64,11 @@ class DoctorWelcome(TemplateView):
                                      last_name=doctor["last_name"],
                                      doctor_photo=doctor["profile_picture"])
 
-        kwargs['doctor'] = doctor_details
-        return kwargs
 
 
-class DoctorAppointments(View):
-    """
-
-    """
-
-    def get(self, request):
         user_timezone = request.COOKIES.get('tzname_from_user')
-        appointments = AppointmentEndpoint(access_token=get_token()).list(date=str(datetime.now(pytz.timezone(user_timezone))))
+        appointments = AppointmentEndpoint(access_token=get_token()).list(
+            date=str(datetime.now(pytz.timezone(user_timezone))))
         filtered_appointments = [
             {
                 'id': appointment['id'],
@@ -111,6 +101,29 @@ class DoctorAppointments(View):
 
                 }
             )
+
+
+
+        return render(request,self.template_name,{'doctor':doctor_details})
+
+
+class DoctorAppointments(View):
+    """
+
+    """
+
+    def get(self, request):
+        user_timezone = request.COOKIES.get('tzname_from_user')
+        appointments = AppointmentEndpoint(access_token=get_token()).list(date=str(datetime.now(pytz.timezone(user_timezone))))
+        filtered_appointments = [
+            {
+                'id': appointment['id'],
+                'patient': appointment['patient'],
+                'time': datetime.strptime(appointment['scheduled_time'], "%Y-%m-%dT%H:%M:%S")
+            }
+            for appointment in appointments
+            if appointment['status'] == ''
+        ]
         return render(request, "appointments.html", {"appointments": filtered_appointments})
 
 

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytz
 
-from drchrono.models import Appointment, AverageWaitTime
+from drchrono.models import Appointment, AverageWaitTime, Doctor
 
 
 def calculate_average_wait_time(doctor, user_timezone):
@@ -18,15 +18,15 @@ def calculate_average_wait_time(doctor, user_timezone):
     )
     if len(appointments) == 0:
         return "There is no patient completed"
-    total_wait_time = 0
+    total_wait_time = timedelta(0)
     for appointment in appointments:
-        total_wait_time += appointment.wait_time
+        total_wait_time = total_wait_time + appointment.wait_time
 
     avg_seconds = total_wait_time / len(appointments)
     average_obj, created = AverageWaitTime.objects.update_or_create(
         pk=today,
         defaults={
-            'doctor': doctor,
-            'average_wait_time': int(avg_seconds / 60),
+            'doctor': Doctor.objects.get(id=doctor),
+            'average_wait_time': int(avg_seconds.total_seconds()/60),
         },
     )
