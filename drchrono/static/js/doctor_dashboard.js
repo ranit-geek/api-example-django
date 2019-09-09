@@ -1,9 +1,9 @@
   $(document).ready(function() {
 
-  var timezone = jstz.determine();
-  var tzname = timezone.name();
-
-  Cookies.set('tzname_from_user', tzname);
+//  var timezone = jstz.determine();
+//  var tzname = timezone.name();
+//
+//  Cookies.set('tzname_from_user', tzname);
   var csrf_token = $("#csrf_token_div").text().trim();
   var doctor_id = $("#doctor_id_div").text().trim();
   console.log(doctor_id)

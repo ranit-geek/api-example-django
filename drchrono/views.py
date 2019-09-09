@@ -1,22 +1,20 @@
 
 from datetime import datetime
 import pytz
-from django.core.checks import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import logout as authentication_logout
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
-from django.core import serializers
 from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
 from social_django.models import UserSocialAuth
 from django.views.generic import View
-
 from drchrono import utilities
 from drchrono.endpoints import DoctorEndpoint, AppointmentEndpoint, PatientEndpoint, CurrentUsersEndpoint
 from drchrono.forms import PatientCheckInForm, DemographicsForm
 from drchrono.models import Doctor, Appointment, Patient, AverageWaitTime
+from drchrono.utilities import save_patient, save_appointment, filter_appointments, save_doctor
 
 
 def get_token():
@@ -38,7 +36,7 @@ class SetupView(TemplateView):
 
 class DoctorWelcome(TemplateView):
     """
-    The doctor can see what appointments they have today.
+    The doctor's welcome page which doctors will see after logging in.
     """
     template_name = 'doctor_welcome.html'
 
@@ -57,79 +55,34 @@ class DoctorWelcome(TemplateView):
     def get(self, request, **kwargs):
         doctor_details = self.make_api_request()
         doctor_id = CurrentUsersEndpoint(access_token=get_token()).fetch("")["doctor"]
-        doctor = DoctorEndpoint(access_token=get_token()).fetch(doctor_id)
-
-        Doctor.objects.get_or_create(id=doctor["id"],
-                                     first_name=doctor["first_name"],
-                                     last_name=doctor["last_name"],
-                                     doctor_photo=doctor["profile_picture"])
-
-
-
+        save_doctor(get_token(), doctor_id)
         user_timezone = request.COOKIES.get('tzname_from_user')
-        appointments = AppointmentEndpoint(access_token=get_token()).list(
-            date=str(datetime.now(pytz.timezone(user_timezone))))
-        filtered_appointments = [
-            {
-                'id': appointment['id'],
-                'patient': appointment['patient'],
-                'time': datetime.strptime(appointment['scheduled_time'], "%Y-%m-%dT%H:%M:%S")
-            }
-            for appointment in appointments
-            if appointment['status'] == ''
-        ]
+        filtered_appointments = filter_appointments(get_token(), str(datetime.now(pytz.timezone(user_timezone))), "")
         for appointment in filtered_appointments:
-            patient = PatientEndpoint(access_token=get_token()).fetch(appointment["patient"])
-            patient_object, created = Patient.objects.update_or_create(
-                patient_id=patient['id'],
-                defaults={
-                    'gender': patient['gender'],
-                    'doctor_id': patient['doctor'],
-                    'first_name': patient['first_name'],
-                    'last_name': patient['last_name'],
-                    'email': patient['email'],
-                    'patient_photo': patient['patient_photo']
-                }
-            )
-
-            appointment_object, created = Appointment.objects.update_or_create(
-                appointment_id=appointment['id'],
-                defaults={
-                    'status': '',
-                    'patient': Patient.objects.get(patient_id=appointment['patient']),
-                    'scheduled_time': appointment['time']
-
-                }
-            )
-
-
-
-        return render(request,self.template_name,{'doctor':doctor_details})
+            save_patient(get_token(), appointment["patient"])
+            save_appointment(appointment)
+        return render(request, self.template_name, {'doctor': doctor_details})
 
 
 class DoctorAppointments(View):
     """
-
+    This is the starting page of the KIOSK. This page shows all the appointments of a doctor filtered by today's date.
+    Patients can start their check in process from here by selecting an appointment slot they have booked.
     """
+    template_name = "appointments.html"
 
     def get(self, request):
         user_timezone = request.COOKIES.get('tzname_from_user')
-        appointments = AppointmentEndpoint(access_token=get_token()).list(date=str(datetime.now(pytz.timezone(user_timezone))))
-        filtered_appointments = [
-            {
-                'id': appointment['id'],
-                'patient': appointment['patient'],
-                'time': datetime.strptime(appointment['scheduled_time'], "%Y-%m-%dT%H:%M:%S")
-            }
-            for appointment in appointments
-            if appointment['status'] == ''
-        ]
-        return render(request, "appointments.html", {"appointments": filtered_appointments})
+        filtered_appointments = filter_appointments(get_token(), str(datetime.now(pytz.timezone(user_timezone))), "")
+        doctor_id = CurrentUsersEndpoint(access_token=get_token()).fetch("")["doctor"]
+        return render(request, self.template_name, {"appointments": filtered_appointments,
+                                                     "doctor_id": doctor_id})
 
 
 class DoctorDashboard(View):
     """
-
+    This page is doctors dashboard page which he can leave open and can see all the appointments filtered by today.
+    Doctor can also start seeing a patient and complete seeing a patient from this page.
     """
     template_name = 'doctor_dashboard.html'
 
@@ -145,7 +98,7 @@ class DoctorDashboard(View):
 
 class DoctorDashboardUpdate(View):
     """
-
+    This is the part of the doctors dashboard page which is for update. This gets changed whenever a patient checks in.
     """
     template_name = 'dashboard_body.html'
 
@@ -157,14 +110,13 @@ class DoctorDashboardUpdate(View):
         doctor = Doctor.objects.get(id=doctor_id)
         return render(request, self.template_name, {'checked_in_appointments': checked_in_appointments,
                                                     'doctor': doctor,
-                                                    'status' : "success"
+                                                    'status': "success"
                                                     })
-
 
 
 class PatientCheckIn(View):
     """
-
+    This page is where patient can confirm their identity by providing specific details.
     """
     patient_form = PatientCheckInForm
     template_name = 'patient_check_in.html'
@@ -195,7 +147,7 @@ class PatientCheckIn(View):
 
 class PatientDemographics(View):
     """
-
+    This is the page where patients can see their demographic information and can also update them.
     """
     patient_demographics = DemographicsForm
     template_name = 'demographics.html'
@@ -241,11 +193,8 @@ class PatientDemographics(View):
                 AppointmentEndpoint(access_token=get_token()).update(appointment_id,updated_appointment)
 
                 user_timezone = request.COOKIES.get('tzname_from_user')
-                time_now =datetime.now(pytz.timezone('UTC'))
+                time_now = datetime.now(pytz.timezone('UTC'))
                 arrival_time = time_now.astimezone(pytz.timezone(user_timezone))
-
-
-
 
                 appointment_object, created = Appointment.objects.update_or_create(
                     appointment_id=appointment_details['id'],
@@ -273,6 +222,9 @@ class PatientDemographics(View):
 
 class StartAppointments(APIView):
 
+    """
+    This api indicates that doctor has started seeing a patient.This stops the wait time of the patients.
+    """
     def post(self, request):
         appointment = Appointment.objects.get(appointment_id=request.POST['appointment_id'])
 
@@ -286,7 +238,6 @@ class StartAppointments(APIView):
                                                                                                  wait_time=total_wait_time,
                                                                                                  session_start_time=time_now
                                                                                                  )
-
                 return JsonResponse({"msg": "success"})
 
             except APIException:
@@ -295,7 +246,9 @@ class StartAppointments(APIView):
 
 
 class CompleteAppointments(APIView):
-
+    """
+    This api indicates that doctor has completed his session with the patient.
+    """
     def post(self, request):
         appointment = Appointment.objects.get(appointment_id=request.POST['appointment_id'])
 
@@ -312,6 +265,9 @@ class CompleteAppointments(APIView):
 
 
 class CalculateWaitTime(View):
+    """
+    This page calculates the wait time for patients and shows statistics details.
+    """
 
     template_name = 'charts.html'
 
