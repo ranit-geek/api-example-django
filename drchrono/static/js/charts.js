@@ -50,7 +50,7 @@ $(document).ready(function () {
             labels: data["date_list"],
             datasets: [
                 {
-                    label: "Data Set One",
+                    label: "Data Set",
                     fill: true,
                     lineTension: 0.3,
                     backgroundColor: gradient1,
